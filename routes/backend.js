@@ -24,8 +24,9 @@ let baseURL = "http://localhost:8000/";
 BackendRouter.post("/upload", function (req, res) {
   let sampleFile;
   let uploadPath;
-
+console.log("hello");
   let name = req.body.name;
+  console.log("name",name);
   if (!req.files || Object.keys(req.files).length === 0) {
     res.status(400).send("No files were uploaded.");
     return;
