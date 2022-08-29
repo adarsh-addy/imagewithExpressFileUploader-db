@@ -15,25 +15,37 @@ btn.addEventListener("click", async function (e) {
       },
     })
     .catch((err) => {
-      console.log(err.response);
+      console.log(err.response.data);
+      // alert(err.response.data)
+      let div = document.querySelector(".contain");
+      div.innerHTML = "";
+      div.innerHTML = `<h1>No Data</h1>`;
     });
   if (resp) {
-    console.log(resp);
+    console.log(resp.data);
+    // alert(resp.data.message)
+
+    //get method
+    let div = document.querySelector(".contain");
+    div.innerHTML = "";
+    let result = await axios.get("/backend/show");
+    // console.log(result.data);
+    let image1 = result.data.records;
+    console.log(image1);
+
+    for (let imgg of image1) {
+      let con = `<div class="card text-center mt-3 border border-primary">
+    <div class="card-body">
+      <img src='${imgg.image}'  class="card-img-top img-fluid" />
+      
+    </div>
+    <div class="card-footer border-T border-dark">
+    <h1 class="display-5 font-monospace">${imgg.name}</h1>
+  </div>
+  </div> `;
+
+      div.innerHTML += con;
+    }
+    console.log(result);
   }
-
-  //get method
-  let div = document.querySelector(".contain");
-
-  let result = await axios.get("/backend/show");
-  console.log(result.data);
-  let image1 = result.data.records;
-  console.log(image1);
-
-  for (let imgg of image1) {
-    let con = ` <h1>${imgg.name}</h1>
-    <img src='${imgg.image}'/>`;
-
-    div.innerHTML += con;
-  }
-  console.log(result);
 });

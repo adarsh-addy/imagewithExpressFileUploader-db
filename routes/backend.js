@@ -27,7 +27,7 @@ BackendRouter.post("/upload", function (req, res) {
 console.log("hello");
   let name = req.body.name;
   console.log("name",name);
-  if (!req.files || Object.keys(req.files).length === 0) {
+  if (!name && !req.files || Object.keys(req.files).length === 0) {
     res.status(400).send("No files were uploaded.");
     return;
   }
@@ -45,11 +45,32 @@ console.log("hello");
     db.getConnection(async (err, connection) => {
       if (err) throw err;
       console.log("db connected");
+
+      const sqlSearch =
+      "SELECT *FROM image WHERE image=?";
+    const search_query = mysql.format(sqlSearch, [ baseURL + sampleFile.name]);
+
       const sqlInsert = "INSERT INTO image (name,image) VALUES (?,?)";
       const insert_query = mysql.format(sqlInsert, [
         name,
         baseURL + sampleFile.name,
       ]);
+
+      
+    // now asking the connection for sql database for the given record;
+    await connection.query(search_query, async (err, result) => {
+      if (err) throw err;
+      console.log("------>searching for result");
+      console.log(result.length);
+      if (result.length != 0) {
+        // releasing the connection with database;
+        connection.release();
+        console.log("Record already exists");
+        res.json({
+          message: "Record already exists",
+        });
+      } else {
+
       await connection.query(insert_query, (err, result) => {
         if (err) throw err;
         console.log("image inserted");
@@ -59,9 +80,13 @@ console.log("hello");
         });
         connection.release();
       });
+    }
     });
   });
+  
 });
+
+})
 
 BackendRouter.get("/show", async (req, res) => {
   db.getConnection(async (err, connection) => {
